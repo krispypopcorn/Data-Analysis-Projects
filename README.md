@@ -1,6 +1,4 @@
-# Hypothesis Testing
-Data Analysis using Analysis of variance for one-and two-way layouts, Generalised linear model - Binary and Poisson. 
-----
+# Data Analysis using Analysis of variance for one-and two-way layouts, Generalised linear model - Binary and Poisson. 
 
 
 ### Hypotheses: 
