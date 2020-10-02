@@ -1,0 +1,255 @@
+---
+title: "A1"
+output: pdf_document
+author: Ishaan Nagi \#1002452525
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r}
+library(tidyverse)
+crime_show_data <- readRDS("~/Google Drive/Uni/Winter 2020/STA303/A1/crime_show_ratings.RDS")
+```
+
+# Question 1: ANOVA as a linear model
+
+## Question 1a
+Write the equation for a linear model that would help us answer our question of interest AND state the assumptions for the ANOVA.
+
+$$ \text{SeasonRating}_i = \beta_{0} + \beta_{1} \cdot \text{Decade}_{2000} + \beta_2\cdot \text{Decade}_{2010}  $$
+
+
+* ANOVA assumptions: 
+  + Errors are independent (observations are independent).
+  + Errors are normally distributed with $\text{E}[\epsilon_{i}] = 0$. 
+  + Constant Variance (homoscedasticity), $\text{var}[\epsilon_{i} = \sigma^2]$.
+  
+## Question 1b
+Write the hypotheses for an ANOVA for the question of interest in words. Make it specific to this context and question.
+
+
++ $H_0:$ The average season rating for crime shows is the same between the decades 1990's, 2000's and 2010's. [$\mu_{1990} = \mu_{2000} = \mu_{2010}$]
++ $H_1:$ The average season rating for crime shows vary from between the decades 1990's, 2000's and 2010's [$\mu_{1990}, \mu_{2000} \text{ and } \mu_{2010}$ not all equal].
+
+## Question 1c
+Make two plots, side-by-side boxplots and facetted historgrams, of the season ratings for each decade. Briefly comment on which you prefer in this case and one way you might improve this plot (you don’t have to make that improvement, just briefly decribe it). Based on these plots, do you think there will be a significant difference between any of the means?
+
+```{r 1c boxplots}
+# Side by side box plots
+crime_show_data %>%
+ggplot(aes(x = decade, y = season_rating)) +
+geom_boxplot() +
+ggtitle("Boxplots of average rating by decade for crime TV shows")
+
+```
+
+```{r 1c facetted histograms}
+# Facetted histograms
+crime_show_data %>%
+ggplot(aes(x = season_rating)) +
+geom_histogram(bins=20) +
+facet_wrap(~decade) +
+ggtitle("Histograms of average rating by decade for crime TV shows")
+
+```
+
++ I prefer the boxplots since they indicate the summary of the data - the inter quartile range of the data, indicating the statistical dispersion between decades and where data points lie across groups. One way I would improve the boxplots, is by visually indicating skewness of the data.
+
++ Purely based on the plots, the average ratings over the decade seem to be increasing.
+
+
+## Question 1d
+Conduct a one-way ANOVA to answer the question of interest above. Show the results of summary() on your ANOVA and briefly interpret the results in context (i.e., with respect to our question of interest).
+
+```{r}
+anova1 <- aov(season_rating ~ decade, data = crime_show_data)
+summary(anova1)
+```
+
++ Pr(>F) > 0.05, and thus we fail to reject the null hypothesis ($H_0$). [Based on 95% test]
+ 
+
+## Question 1e
+
+Update the code below to create two plots and the standard deviation of season rating by decade. Briefly comment on what each plot/output tells you about the assumptions for conducting an ANOVA with this data.
+Note: there are specific tests for equality of variances, but for the purposes of this course we will just consider a rule of thumb from Dean and Voss (Design and Analysis of Experiments, 1999, page 112): if the ratio of the largest within-in group variance estimate to the smallest within-group variance estimate does not exceed 3, $s^{2}_{max}/s^{2}_{min} < 3$, the assumption is probably satisfied.
+
+```{r}
+# add your ANOVA object's name below (from Q1d)
+plot(anova1, 1) 
+plot(anova1, 2)
+# Note: this is the tidyverse way you can use a different method if you wish, 
+# but you're not required to write any code here
+crime_show_data %>%
+group_by(decade) %>%
+summarise(var_rating = sd(season_rating)^2)
+
+```
+
++ Plot 1) Used to check the assumption of (homoscedasticity) constance variance of errors. The residuals are centered around the fitted line and do not seem to changing, thus agreeing with our assumption. 
+
++ Plot 2) We check the qq-plot to ascertain whether or not the normality of errors assumption holds. Majority of standaridized residuals seem to lie on the dotted line, agreeing with our assumption.
+
+## Question 1f
+
+Conduct a linear model based on the question of interest. Show the result of running summary() on your linear model. Interpret the coefficients from this linear model in terms of the mean season ratings for each decade. From these coefficients, calculate the observed group means for each decade, i.e., $\hat{\mu}_{1990s}$, $\hat{\mu}_{2000s}$, and $\hat{\mu}_{2010s}$.
+
+```{r}
+lm1 <- lm(season_rating ~ 0 + as.factor(decade), data=crime_show_data)
+summary(lm1)
+```
+* Based on the summary:
+  + $\beta_0 = 7.992$, which is the season average rating for the decade 1990.
+  + $\beta_1 = 8.0589$ which is the season average rating for the decade 2000.
+  + $\beta_2 = 8.1160$ which is the season average rating for the decade 2010.
+
+
+
+# Question 2: Generalised linear models - Binary
+
+## Setup
+
+```{r}
+smokeFile = 'smokeDownload.RData' 
+if(!file.exists(smokeFile)){
+download.file( 'http://pbrown.ca/teaching/303/data/smoke.RData', smokeFile)
+} 
+(load(smokeFile))
+```
+
+* Get rid of 9, 10 year olds and missing age and race
+```{r}
+smokeSub = smoke[which(smoke$Age > 10 & !is.na(smoke$Race)), ] 
+#Set baseline age = 16
+smokeSub$ageC = smokeSub$Age - 16
+smokeModel = glm(chewing_tobacco_snuff_or ~ ageC + RuralUrban + Race + Sex,
+data=smokeSub, family=binomial(link='logit')) 
+knitr::kable(summary(smokeModel)$coef, digits=3)
+```
+
+```{r}
+logOddsMat = cbind(est=smokeModel$coef, confint(smokeModel, level=0.99)) 
+oddsMat = exp(logOddsMat)
+oddsMat[1,] = oddsMat[1,] / (1+oddsMat[1,])
+rownames(oddsMat)[1] = 'Baseline prob'
+knitr::kable(oddsMat, digits=3)
+```
+
+
+## Question 2a
+Write down and explain the statistical model which smokeModel corresponds to, defining all your variables. It is sufficient to write $X_{i} \beta$ and explain in words what the variables in $X_i$ are, you need not write $\beta_{1} X_{i1} +  \beta_{2} X_{i2} + \cdots$
+
+* The smokeModel is trying to ascertain the probability that a subject has used chewing tobacco, snuff, or dip on 1 or more days in the past 30 days, based on the attributes: ageC, RuralUrban, Race and Sex:
+  + "ageC": is the difference in age as compared to the offset (16).
+  + "RuralUrban": whether subject is located in a 'Urban' or 'Rural' area.
+  + "Race": the ethnicity of the subject. ["white", "black", hispanic", "asian", native" or "pacific" ]
+  + "Sex": Whether subject is Male or Female. ["M" or "F"]
+  
+## Question 2b
+
+Write a sentence or two interpreting the row “baseline prob” in the table above. Be specific about which subset of individuals this row is referring to.
+
++ The chosen baseline is a 16 years, urban, white and male.
++ The "basline prob" refers to the basline odds that a subject from the basline population has used chewing tobacco, snuff, or dip on 1 or more days in the past 30 days.
+
+
+## Question 2c
+Write a short paragraph addressing the hypothesis that rural white males are the group most likely to use chewing tobacco, and there is reasonable certainty that less than half of one percent of ethnic-minority urban women and girls chew tobacco.
+
+
+* Based on the given table, it is expected that 149.3 out of a 1000 rural white males have used chewing tobacco, snuff, or dip on 1 or more days in the past 30 days. 
+  + This outnumbers urban white males, urban hispanic males, urban black females and urban asian females with expected numbers (per 1000) 63.0, 31.5, 2.3 and 2.4 respectively. 
+  + Also note, the confidence intervals for the white, rural males does not overlap with any of the other categories. 
+  + Then we can say with reasonable certainty that rural white males are the group most likely to use chewing tobacco.
+
+* Considering Females ethnic-minorities: it is expected that $(2.4+2.3 = 4.7)$ subjects used chewing tobacco, snuff, or dip on 1 or more days in the past 30 days per thousand with Lower bound: $1.3 + 0.8 = 2.1$ and Upper Bound: $4.2 + 6.8 =$ 11. [Following $\text{E}[X]$ property of Binomials]
+  + Which is = $0.47$ percent (per 100). Note: $0.47 < 0.5$. 
+  + However the 99% confidence interval ranges from 0.21% to 1.1%, so there isn't reasonable certainty that less than half of one percent of ethnic-minority urban women and girls chew tobacco.
+
+
+
+
+# Question 3: Generalised linear models - Poisson
+
+# Setup
+
+```{r Q3 Setup}
+fijiFile = 'fijiDownload.RData' 
+if(!file.exists(fijiFile)){
+download.file( 'http://pbrown.ca/teaching/303/data/fiji.RData', fijiFile)
+} 
+(load(fijiFile))
+```
+
+```{r}
+fijiSub = fiji[fiji$monthsSinceM > 0 & !is.na(fiji$literacy),] 
+fijiSub$logYears = log(fijiSub$monthsSinceM/12) 
+fijiSub$ageMarried = relevel(fijiSub$ageMarried, '15to18') 
+fijiSub$urban = relevel(fijiSub$residence, 'rural')
+fijiRes = glm(children ~ offset(logYears) + ageMarried + ethnicity + literacy + urban, family=poisson(link=log), data=fijiSub)
+logRateMat = cbind(est=fijiRes$coef, confint(fijiRes, level=0.99)) 
+knitr::kable(cbind(summary(fijiRes)$coef, exp(logRateMat)), digits=3)
+```
+
+```{r}
+fijiSub$marriedEarly = fijiSub$ageMarried == '0to15' 
+fijiRes2 = glm(children ~ offset(logYears) + marriedEarly + ethnicity + urban, family=poisson(link=log), data=fijiSub)
+logRateMat2 = cbind(est=fijiRes2$coef, confint(fijiRes2, level=0.99)) 
+knitr::kable(cbind(summary(fijiRes2)$coef,exp(logRateMat2)), digits=3)
+```
+
+
+## Question 3a
+Write down and explain the statistical model which fijiRes corresponds to, defining all your variables. It is sufficient to write $X_{i} \beta$ and explain in words what the variables in $X_i$ are, you need not write $\beta_{1} X_{i1} +  \beta_{2} X_{i2} + \cdots$
+
+FijiRes tries to ascertain the fertility rate of women as compared to the basline: married between the age 15 to 17, Fijian, literate and Rural).
+
+* The model uses attributes 'ageMarried', 'ethnicity', 'literacy' and 'urban'
+  + 'ageMarried' is the age of the subject at the time of marriage.
+  + 'ethnicity' is the ethnicity of a subject. ["fijian", "indian", "european", "partEuropean", "pacificIslander", "routman", "chinese" and "other"]
+  + 'literacy' whether or not the subject is literate.
+  + 'urban' whether or not the subject is from "rural", "suva" or "otherUrban".
+  
+
+## Question 3b
+
+```{r}
+lmtest::lrtest(fijiRes2, fijiRes)
+```
+
+* Yes, the likelihood ratio test performed above is comparing nested models. 'fijiRes2' is a special case of 'fijiRes'. 
+* 'fijiRes2' wants to analyse the case where ageMarried' == '0to15' and the case where ageMarried =! '0to15', as compared to multiple levels of 'ageMarried' in 'fijiRes'. Also, 'fijiRes2' does not take into account 'literacy'.
+* There is a constraint on the $\beta_1$, corresponding to 'marriedEarlyTRUE' which represents the change in the rate if a subject was married at the age of 14 or younger; The baseline case accounts for all other cases.
+
+## Question 3c
+
+It is hypothesized that improving girls’ education and delaying marriage will result in women choosing to have fewer children and increase the age gaps between their children. An alternate hypothesis is that contraception was not widely available in Fiji in 1974 and as a result there was no way for married women to influence their birth intervals. Supporters of each hypothesis are in agreement that fertility appears to be lower for women married before age 15, likely because these women would not have been fertile in the early years of their marriage.
+
+Write a paragraph discussing the results above in the context of these two hypotheses.
+
+
+Consider the fijiRes Model. 
+
+* Regarding Hypothesis 1: 
+  + The estimated fertility rate for women that are illeterate (literacy = no) is $0.984 \cdot 0.303 \text{ (baseline fertility rate)} = 0.298152$ , hence lower than literate women. 
+  + Disregarding women married from the age of 14 and younger, since both hyoptheses agree that fertility appears to be lower for women married before age 15, likely because these women would not have been fertile in the early years of their marriage.
+  + All other fertility rates related to ageMarried, are greater than the baseline (1), suggesting that delaying marriage may not result in women choosing to have fewer children and increase the age gaps between their children.
+  + However, note that all these estimates are insignificant. Pr(>|z|) for most estimates is much greater than 0.05 (95% threshold). We cannot state any conclusions with high certainty. Also, the Likelihood ratio test in part b also tells us to consider the simpler model without literacy.
+  
+* Regarding hypothesis 2:
+  + There is no way we can form a conclusion on fertility rates before and after 1974 or on the impact the lack of contraception without further data and analysis.
+
+
+
+
+
+
+
+
+
+
+
+
