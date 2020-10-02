@@ -1,19 +1,24 @@
 # Data Analysis using Analysis of variance for one-and two-way layouts, Generalised linear model - Binary and Poisson. 
 
+## National Youth Tobacco Survey (NYTS):
+src: https://www.cdc.gov/tobacco/data_statistics/surveys/nyts/index.htm
+The NYTS was designed to provide national data on long-term, intermediate, and short-term indicators key to the design, implementation, and evaluation of comprehensive tobacco prevention and control programs. The NYTS also serves as a baseline for comparing progress toward meeting selected Healthy People 2020 goals for reducing tobacco use among youth:
 
+* TU–18.1—Reduce the proportion of adolescents and young adults in grades 6 through 12 who are exposed to tobacco marketing on the Internet
+* TU–18.2—Reduce the proportion of adolescents and young adults in grades 6 through 12 who are exposed to tobacco marketing in magazines and newspapers
+* TU–18.3—Reduce the proportion of adolescents and young adults in grades 6 through 12 who are exposed to tobacco marketing in movies and television
+* TU–18.4—Reduce the proportion of adolescents and young adults in grades 6 through 12 who are exposed to tobacco marketing at point of purchase (convenience store, supermarket, or gas station)
+Items measured as part of the NYTS survey include correlates of tobacco use such as demographics, minors’ access to tobacco, and exposure to secondhand smoke.
+
+* The NYTS provides nationally representative data about middle and high school youth’s—
+ * Tobacco-related beliefs
+ * Attitudes
+ * Behaviors
+ * Exposure to pro- and anti-tobacco influences
+ 
 ### Hypotheses: 
 * Rural white males are the group most likely to use chewing tobacco
 * There is reasonable certainty that less than half of one percent of ethnic-minority urban women and girls chew tobacco.
-
-
-#### Data:
-American Student Survey Data (2014) - Has participant used chewing tobacco? 
-- 35 Unique States
-- Age
-- M/F
-- Rural/Urban
-- Race
-
 
 ### Results:
 
