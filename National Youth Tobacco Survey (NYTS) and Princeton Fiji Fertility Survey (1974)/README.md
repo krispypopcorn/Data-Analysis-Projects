@@ -32,9 +32,6 @@ Items measured as part of the NYTS survey include correlates of tobacco use such
   that less than half of one percent of ethnic-minority urban women and girls chew tobacco.
 
 
-### Hypothesis: 
-* Improving girls’ education and delaying marriage will result in women choosing to have fewer children and increase the age gaps between their children. 
-* Another hypothesis is that contraception was not widely available in Fiji in 1974 and as a result there was no way for married women to influence their birth intervals. Supporters of each hypothesis are in agreement that fertility appears to be lower for women married before age 15, likely because these women would not have been fertile in the early years of their marriage.
 
 
 ## Princeton Fiji Fertility Survey (1974)
@@ -53,6 +50,9 @@ Supplementary surveys: Household members (n = 33,403, self-weighting); Re-interv
 
 src: https://opr.princeton.edu/archive/wfs/FJ.aspx
 
+### Hypothesis: 
+* Improving girls’ education and delaying marriage will result in women choosing to have fewer children and increase the age gaps between their children. 
+* Another hypothesis is that contraception was not widely available in Fiji in 1974 and as a result there was no way for married women to influence their birth intervals. Supporters of each hypothesis are in agreement that fertility appears to be lower for women married before age 15, likely because these women would not have been fertile in the early years of their marriage.
 
 ### Results:
 * Regarding Hypothesis 1
